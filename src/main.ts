@@ -1,7 +1,17 @@
-import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
+import { AppComponent } from './app/app.component';
 
-import { AppModule } from './app/app.module';
+import { bootstrapApplication } from '@angular/platform-browser';
+import { HttpClientModule } from '@angular/common/http';
+import { importProvidersFrom } from '@angular/core';
+import { RouterModule } from '@angular/router';
 
+import { routes } from './app/routes';
+import { BatteryDataService } from './app/services/battery-data.service';
 
-platformBrowserDynamic().bootstrapModule(AppModule)
-  .catch(err => console.error(err));
+bootstrapApplication(AppComponent, {
+  providers: [
+    importProvidersFrom(RouterModule.forRoot(routes)),
+    importProvidersFrom(HttpClientModule),
+    BatteryDataService,
+  ],
+}).catch((err) => console.error(err));

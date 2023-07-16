@@ -1,0 +1,38 @@
+<main class="dashboard">
+  <section *ngIf="sortedAcademiesByBatteryFaults.length">
+    <h2>Academies with batteries issues:</h2>
+    <div class="dashboard__academies_wrapper">
+      <div
+        *ngFor="let batteriesDetailsOfAcademy of sortedAcademiesByBatteryFaults"
+        routerLink="/academy-details"
+        [queryParams]="{ academyId: batteriesDetailsOfAcademy[0] }"
+        [ngClass]="getColourClass(batteriesDetailsOfAcademy[1])"
+        class="dashboard__academy"
+      >
+        <strong
+          ><h3>
+            {{ batteriesDetailsOfAcademy[0] }} ({{
+              batteriesDetailsOfAcademy[1]
+            }})
+          </h3></strong
+        >
+      </div>
+    </div>
+
+    <aside>
+      <p class="dashboard--legend-title"><strong>Legend:</strong></p>
+
+      <p class="high dashboard--legend"><i>High number of issues</i></p>
+      <p class="medium dashboard--legend"><i>Medium number of issues</i></p>
+      <p class="low dashboard--legend"><i>Less number of issues</i></p>
+    </aside>
+  </section>
+
+  <div *ngIf="sortedAcademiesByBatteryFaults.length === 0">
+    <h3>All academies have healthy batteries. Good job!</h3>
+  </div>
+
+  <div *ngIf="isError">
+    <h3>An error occurred. Please try again in some time.</h3>
+  </div>
+</main>

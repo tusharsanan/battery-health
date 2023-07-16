@@ -1,0 +1,61 @@
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  padding: 24px 50px;
+
+  &__academies_wrapper {
+    display: flex;
+    justify-content: space-between;
+    padding: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 40px;
+    margin-top: 24px;
+  }
+
+  &__academy {
+    display: flex;
+    margin: 8px;
+    border-radius: 8px;
+    padding: 72px;
+    border: 1px solid;
+    cursor: pointer;
+    text-align: center;
+    color: #fff;
+  }
+
+  &--legend {
+    margin-bottom: 8px;
+    padding: 8px;
+  }
+
+  &--legend-title {
+    margin-bottom: 8px;
+  }
+
+  aside {
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: baseline;
+  }
+
+  .low {
+    background-color: #fadd40;
+  }
+
+  .medium {
+    background-color: #ff8201;
+  }
+
+  .high {
+    background-color: #c01723;
+  }
+
+  .none {
+    background-color: green;
+  }
+
+  &--legend {
+    color: #fff;
+  }
+}

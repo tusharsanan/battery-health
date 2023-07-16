@@ -1,0 +1,41 @@
+<main
+  *ngIf="academyBatteryDetails$ | async as academyBatteryDetails"
+  class="academy_details"
+>
+  <h2>List of batteries in the academy {{ academyId }}:</h2>
+
+  <section class="academy_details__batteries_wrapper">
+    <div class="academy_details--unhealthy_batteries_block batteries_block">
+      <h3>Unhealthy batteries:</h3>
+      <ul>
+        <ng-container *ngFor="let battery of academyBatteryDetails">
+          <li *ngIf="battery.replaceBattery === true">
+            {{ battery.serialNumber }}
+          </li>
+        </ng-container>
+      </ul>
+    </div>
+
+    <div class="academy_details--healthy_batteries_block batteries_block">
+      <h3>Healthy batteries:</h3>
+      <ul>
+        <ng-container *ngFor="let battery of academyBatteryDetails">
+          <li *ngIf="battery.replaceBattery === false">
+            {{ battery.serialNumber }}
+          </li>
+        </ng-container>
+      </ul>
+    </div>
+
+    <div class="academy_details--healthy_batteries_block batteries_block">
+      <h3>Undefined batteries:</h3>
+      <ul>
+        <ng-container *ngFor="let battery of academyBatteryDetails">
+          <li *ngIf="battery.replaceBattery === undefined">
+            {{ battery.serialNumber }}
+          </li>
+        </ng-container>
+      </ul>
+    </div>
+  </section>
+</main>

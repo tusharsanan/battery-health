@@ -1,0 +1,23 @@
+[
+  {
+    "academyId": 30006,
+    "batteryLevel": 1,
+    "employeeId": "T1007384",
+    "serialNumber": "1805C67HD02259",
+    "timestamp": "2019-05-17T09:00:00.833+01:00"
+  },
+  {
+    "academyId": 30006,
+    "batteryLevel": 0.9,
+    "employeeId": "T1007384",
+    "serialNumber": "1805C67HD02259",
+    "timestamp": "2019-05-17T21:00:00.833+01:00"
+  },
+  {
+    "academyId": 30006,
+    "batteryLevel": 0.8,
+    "employeeId": "T1007384",
+    "serialNumber": "1805C67HD02259",
+    "timestamp": "2019-05-18T09:00:00.833+01:00"
+  }
+]

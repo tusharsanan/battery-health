@@ -1,0 +1,12 @@
+@import "src/app/scss/variables";
+
+header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  padding: 16px;
+  background-color: $primary-color;
+  color: #fff;
+  justify-content: space-evenly;
+  margin-bottom: 24px;
+}
