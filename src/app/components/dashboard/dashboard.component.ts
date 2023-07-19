@@ -2,15 +2,16 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
-import { untilDestroyed } from '../../utils/common.utils';
+import { catchError, map, Observable, throwError } from 'rxjs';
+
 import { BatteryDataService } from '../../services/battery-data.service';
+import { untilDestroyed } from '../../utils/common.utils';
 import {
-  IBatteryHealthData,
   IBattery,
+  IBatteryHealthData,
   IFormattedBatteriesData,
   IFormattedBatteryData,
 } from '../../models/batteries.model';
-import { catchError, map, Observable, throwError } from 'rxjs';
 
 @Component({
   selector: 'app-dashboard',
@@ -27,13 +28,10 @@ export class DashboardComponent implements OnInit {
   public batteriesData$!: Observable<IBattery[]>;
   public batteriesHealthData: IBatteryHealthData[] = [];
   public sortedAcademiesByBatteryFaults: [string, number][] = [];
-
   public isError: boolean = false;
 
   public ngOnInit(): void {
     this.batteriesData$ = this._batteryDataService.getBatteriesData();
-
-    this.formatBatteriesData();
 
     this.formatBatteriesData()
       .pipe(
@@ -55,13 +53,12 @@ export class DashboardComponent implements OnInit {
   public sortAcademiesByBatteryFaults(): void {
     const count: { [key: number]: number } = this.batteriesHealthData.reduce(
       (res: { [key: number]: number }, val: IBatteryHealthData) => {
-        if (res[val.academyId] && val.replaceBattery) {
+        if (res[val.academyId]) {
           res[val.academyId]++;
-        } else if (val.replaceBattery) {
-          res[val.academyId] = 1;
-        } else if (!res[val.academyId] && !val.replaceBattery) {
+        } else {
           res[val.academyId] = 0;
         }
+
         return res;
       },
       {}
@@ -91,42 +88,6 @@ export class DashboardComponent implements OnInit {
       )
     );
   }
-  //
-  // private getDataPointsForCalculation(data: IFormattedBatteryData[]): {
-  //   initialDataPoint: IFormattedBatteryData;
-  //   finalDataPoint: IFormattedBatteryData;
-  // } {
-  //   let initialDataPoint: IFormattedBatteryData = data[0];
-  //   let finalDataPoint!: IFormattedBatteryData;
-  //
-  //   for (let i: number = 1; i < data.length; i++) {
-  //     if (data[i].batteryLevel > data[i - 1].batteryLevel) {
-  //       finalDataPoint = data[i - 1];
-  //
-  //       if (initialDataPoint.batteryLevel === finalDataPoint.batteryLevel) {
-  //         continue;
-  //       }
-  //
-  //       const result: boolean = this.shouldReplaceBattery(
-  //         initialDataPoint,
-  //         finalDataPoint
-  //       );
-  //
-  //       if (!result && data[i + 1]) {
-  //         initialDataPoint = data[i];
-  //         continue;
-  //       }
-  //       break;
-  //     } else {
-  //       finalDataPoint = data[i];
-  //     }
-  //   }
-  //
-  //   return {
-  //     initialDataPoint,
-  //     finalDataPoint,
-  //   };
-  // }
 
   public checkBatteriesHealthStatus(
     formattedBatteryData: IFormattedBatteriesData
@@ -146,14 +107,11 @@ export class DashboardComponent implements OnInit {
           return;
         }
 
-        const avg = this.getAverage(data);
-
-        console.log(avg);
-        console.log(avg);
+        const averageBatteryConsumption: number = this.getAverage(data);
 
         const { serialNumber, academyId } = data[0];
 
-        if (isNaN(avg)) {
+        if (isNaN(averageBatteryConsumption)) {
           this.batteriesHealthData.push({
             serialNumber,
             replaceBattery: undefined,
@@ -162,35 +120,11 @@ export class DashboardComponent implements OnInit {
           return;
         }
 
-        if (avg > 0.3) {
-          this.batteriesHealthData.push({
-            serialNumber,
-            replaceBattery: true,
-            academyId,
-          });
-        } else {
-          this.batteriesHealthData.push({
-            serialNumber,
-            replaceBattery: false,
-            academyId,
-          });
-        }
-
-        // const { initialDataPoint, finalDataPoint } =
-        //   this.getDataPointsForCalculation(data);
-        //
-        // const result: boolean = this.shouldReplaceBattery(
-        //   initialDataPoint,
-        //   finalDataPoint
-        // );
-        //
-        // this.batteriesHealthData.push({
-        //   serialNumber: initialDataPoint.serialNumber,
-        //   replaceBattery: result,
-        //   academyId: initialDataPoint.academyId,
-        // });
-
-        console.log(this.batteriesHealthData);
+        this.batteriesHealthData.push({
+          serialNumber,
+          replaceBattery: averageBatteryConsumption > 0.3,
+          academyId,
+        });
       }
     );
 
@@ -199,49 +133,48 @@ export class DashboardComponent implements OnInit {
     );
   }
 
-  public getAverage(data: IFormattedBatteryData[]) {
-    const intervals = [];
+  private getAverage(data: IFormattedBatteryData[]) {
+    const intervals: { diff: number; timeDiff: number }[] = [];
 
-    for (let i = 1; i < data.length; i++) {
-      const currentDevice = data[i - 1];
-      const previousDevice = data[i];
+    for (let i: number = 1; i < data.length; i++) {
+      const currentData: IFormattedBatteryData = data[i - 1];
+      const previousData: IFormattedBatteryData = data[i];
 
       const diff = +(
-        currentDevice.batteryLevel - previousDevice.batteryLevel
+        currentData.batteryLevel - previousData.batteryLevel
       ).toFixed(2);
-      const timeDiff = this.diffMinutes(
-        currentDevice.timestamp,
-        previousDevice.timestamp
-      );
-      const interval = { diff, timeDiff };
 
-      intervals.push(interval);
+      const timeDiff = this.diffMinutes(
+        currentData.timestamp,
+        previousData.timestamp
+      );
+
+      intervals.push({ diff, timeDiff });
     }
 
-    let sum = 0;
-    let totalWeight = 0;
-    let timeDiff = 0;
+    let sum: number = 0;
+    let totalWeight: number = 0;
 
     for (const interval of intervals) {
       if (interval.diff <= 0) {
         continue; // Exclude intervals where battery level increases
       }
 
-      const weight = +(interval.timeDiff / (1000 * 60 * 60 * 24)).toFixed(2); // Intervals weighted by duration (in days)
-      sum += +(interval.diff * weight).toFixed(2);
-      totalWeight += weight;
+      const weight: number = +(
+        interval.timeDiff /
+        (1000 * 60 * 60 * 24)
+      ).toFixed(2); // Intervals weighted by duration (in days)
 
-      // timeDiff += interval.timeDiff;
+      sum += interval.diff * weight;
+      totalWeight += weight;
     }
 
-    // const test = 24 / (timeDiff / 3600000);
-    // return (sum / totalWeight) * test;
     return sum / totalWeight;
   }
 
   public diffMinutes(date1: string, date2: string): number {
-    const d1 = new Date(date1);
-    const d2 = new Date(date2);
+    const d1: Date = new Date(date1);
+    const d2: Date = new Date(date2);
     return Math.round(d2.valueOf() - d1.valueOf());
   }
 

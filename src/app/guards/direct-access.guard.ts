@@ -4,7 +4,7 @@ import { inject } from '@angular/core';
 export const directAccessGuard: CanActivateFn = (): boolean => {
   const router = inject(Router);
   if (router.url === '/') {
-    router.navigate(['']); // Navigate away to some other page
+    router.navigate(['']); // Navigate to dashboard
     return false;
   }
   return true;

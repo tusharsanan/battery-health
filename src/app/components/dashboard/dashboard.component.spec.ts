@@ -8,7 +8,7 @@ import Spy = jasmine.Spy;
 import { of } from 'rxjs';
 import { IFormattedBatteriesData } from '../../models/batteries.model';
 
-fdescribe('DashboardComponent', () => {
+describe('DashboardComponent', () => {
   let component: DashboardComponent;
   let fixture: ComponentFixture<DashboardComponent>;
   let debugElement: DebugElement;
