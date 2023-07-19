@@ -1,9 +1,14 @@
 @import "src/app/scss/variables";
+@import "src/app/scss/breakpoints";
 
 .academy_details {
   display: flex;
   flex-direction: column;
-  padding: 24px 50px;
+  padding: 16px;
+
+  @include media-breakpoint-sm-up() {
+    padding: 24px 50px;
+  }
 
   h3 {
     margin-bottom: 16px;
@@ -30,12 +35,25 @@
     display: flex;
     text-align: center;
     flex-direction: column;
-    flex: 1;
+    width: 100%;
+
     &:not(:last-child) {
-      margin-right: 16px;
+      margin-bottom: 16px;
+    }
+
+    @include media-breakpoint-sm-up() {
+      flex: 1;
+      width: auto;
+
+      &:not(:last-child) {
+        margin-right: 16px;
+      }
+
+      &:not(:last-child) {
+        margin-bottom: 0;
+      }
     }
   }
-
   &--unhealthy_batteries_block {
     background: #c01723;
   }
